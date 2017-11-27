@@ -34,5 +34,4 @@ Lab 7
       } if (mileage > long_trip);
     }
   }
- 
 }
