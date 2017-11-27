@@ -100,10 +100,10 @@ Lab 7
 				"attrs": { "rid": "Subscriptions", "vehicle_id": vehicle_id } } )
 			event:send({ "eci": the_vehicle.eci, "eid": "install-ruleset",
 				"domain": "pico", "type": "new_ruleset",
-				"attrs": { "rid": "track_trips_multiple", "vehicle_id": vehicle_id } } )
+				"attrs": { "rid": "track_trips2", "vehicle_id": vehicle_id } } )
 			event:send({ "eci": the_vehicle.eci, "eid": "install-ruleset",
 				"domain": "pico", "type": "new_ruleset",
-				"attrs": { "rid": "trip_store_multiple", "vehicle_id": vehicle_id } } )
+				"attrs": { "rid": "trip_store", "vehicle_id": vehicle_id } } )
 		}
 		fired {
 		    ent:vehicles := ent:vehicles.defaultsTo({});
