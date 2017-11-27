@@ -6,7 +6,7 @@ Lab 7
 >>
 		author "Andy Yatteau"
 		logging on
-    	shares __testing, fleet, vehicles, show_children
+		shares __testing, fleet, vehicles, show_children
 		use module io.picolabs.pico alias wrangler
 		use module Subscriptions
   	}
