@@ -52,6 +52,12 @@ Lab 7
 		show_children = function() {
 			wrangler:children()
 		}
+		nameFromID = function(vehicle_id) {
+			"Vehicle-" + vehicle_id + "-Pico"
+		}
+		childFromID = function(vehicle_id) {
+			ent:vehicles[vehicle_id]
+		}
   	}
   	rule create_vehicle {
 		select when car new_vehicle
@@ -65,7 +71,7 @@ Lab 7
 		fired {
 			raise pico event "new_child_request"
 				attributes {
-					"dname": nameFromId(vehicle_id),
+					"dname": nameFromID(vehicle_id),
 					"color": "#87fa97",
 					"vehicle_id": vehicle_id
 				}
@@ -101,7 +107,7 @@ Lab 7
 			vehicle_id = event:attr("vehicle_id")
 			exists = ent:vehicles >< vehicle_id
 			eci = meta:eci
-			child_to_delete = childFromId(vehicle_id)
+			child_to_delete = childFromID(vehicle_id)
 		}
 		if exists then
 			send_directive("vehicle_deleted", {"vehicle_id":vehicle_id})
