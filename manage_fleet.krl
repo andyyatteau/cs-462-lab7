@@ -52,49 +52,56 @@ Lab 7
 		show_children = function() {
 			wrangler:children()
 		}
-		nameFromID = function(vehicle_id) {
-			"Vehicle-" + vehicle_id + "-Pico"
-		}
 		childFromID = function(vehicle_id) {
 			ent:vehicles[vehicle_id]
 		}
+		subscriptionFromID = function(vehicle_id) {
+      		"vehicle_" + vehicle_id
+	    }
+	    subscriptionName = function(vehicle_id) {
+	    	"car:" + subscriptionFromID(vehicle_id)
+	    }
   	}
   	rule create_vehicle {
-		select when car new_vehicle
-		pre {
-			vehicle_id = event:attr("vehicle_id")
-			exists = ent:vehicles >< vehicle_id
-		}
-		if not exists
-		then
-			noop()
-		fired {
-			raise pico event "new_child_request"
-				attributes {
-					"dname": nameFromID(vehicle_id),
-					"color": "#87fa97",
-					"vehicle_id": vehicle_id
-				}
-		}	
-	}
-	rule vehicle_already_exists {
-		select when car new_vehicle
-        pre {
-            vehicle_id = event:attr("vehicle_id")
-            exists = ent:vehicles >< vehicle_id
-        }
-        if exists then
+    	select when car new_vehicle
+    	pre {
+    		vehicle_id = event:attr("vehicle_id")
+    		exists = ent:vehicles >< vehicle_id
+    		eci = meta:eci
+    	}
+	    if exists then
 	    	send_directive("vehicle_ready", {"vehicle_id":vehicle_id})
-	}
+	    fired {
+	    } else {
+    		raise pico event "new_child_request"
+        		attributes { "dname": subscriptionFromID(vehicle_id),
+                    "color": "#87fa97",
+                    "vehicle_id": vehicle_id }
+                }
+    }
 	rule pico_child_initialized {
 		select when pico child_initialized
 		pre {
 			the_vehicle = event:attr("new_child")
 			vehicle_id = event:attr("rs_attrs") {"vehicle_id"};
+			eci = meta:eci
 		}
-		if section_id.klog("found vehicle_id")
-		then
-			noop()
+		every {
+			event:send({ "eci": eci, "eid": "subscription",
+			    "domain": "wrangler", "type": "subscription",
+			    "attrs": { "name": subscriptionFromID(vehicle_id),
+	            	"name_space": "car",
+	                "my_role": "fleet",
+	                "subscriber_role": "vehicle",
+	                "channel_type": "subscription",
+	                "subscriber_eci": the_vehicle.eci} } )
+			event:send({ "eci": the_vehicle.eci, "eid": "install-ruleset",
+				"domain": "pico", "type": "new_ruleset",
+				"attrs": { "rid": "Subscriptions", "vehicle_id": vehicle_id } } )
+			event:send({ "eci": the_vehicle.eci, "eid": "install-ruleset",
+				"domain": "pico", "type": "new_ruleset",
+				"attrs": { "rid": "trip_store", "vehicle_id": vehicle_id } } )
+		}
 		fired {
 		    ent:vehicles := ent:vehicles.defaultsTo({});
 		    ent:vehicles{[vehicle_id]} := the_vehicle
@@ -112,6 +119,8 @@ Lab 7
 		if exists then
 			send_directive("vehicle_deleted", {"vehicle_id":vehicle_id})
 		fired {
+			raise wrangler event "subscription_cancellation"
+        		attributes {"subscription_name": subscriptionName(vehicle_id)};
 			raise pico event "delete_child_request"
 				attributes child_to_delete;
 			ent:vehicles{[vehicle_id]} := null
