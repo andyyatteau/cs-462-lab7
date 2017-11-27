@@ -118,3 +118,4 @@ Lab 7
 			ent:vehicles := {}
 		}
 	}
+}
