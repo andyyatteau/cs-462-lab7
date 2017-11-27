@@ -24,7 +24,7 @@ Lab 7
 				},
 				{
 					"name": "show_children"
-				},
+				}
 			],
                   	"events": [
 				{
