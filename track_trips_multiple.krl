@@ -1,6 +1,6 @@
-ruleset track_trips {
+ruleset track_trips_multiple {
   meta {
-    name "Track Trips"
+    name "Track Trips for Multiple Picos"
     description <<
 Lab 7
 >>
